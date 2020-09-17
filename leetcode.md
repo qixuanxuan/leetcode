@@ -410,6 +410,31 @@ public:
 };
 ```
 
+# 随机洗牌
+
+```c++
+// 得到一个在闭区间 [min, max] 内的随机整数
+int randInt(int min, int max)
+{
+	srand(time(0));
+	return rand() % (max - min + 1) + min;
+}
+
+// 第一种写法
+void shuffle(int[] arr) {
+    int n = arr.length();
+    /******** 区别只有这两行 ********/
+    for (int i = 0 ; i < n; i++) {
+        // 从 i 到最后随机选一个元素
+        int rand = randInt(i, n - 1);
+        /*************************/
+        swap(arr[i], arr[rand]);
+    }
+}
+```
+
+
+
 # Vscode使用
 
 * 可以使用cmake先编译出可执行文件，然后再配置launch.json
