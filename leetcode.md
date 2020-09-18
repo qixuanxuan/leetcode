@@ -6,6 +6,8 @@
 
 按上面的套路走，最后的结果就可以套这个框架：
 
+* 框架1
+
 ```c++
 # 初始化 base case
 dp[0][0][...] = base
@@ -17,7 +19,24 @@ for 状态1 in 状态1的所有取值：
             	dp[状态1][状态2][...] = 求最值(选择1，选择2...)
 ```
 
-### [416. 分割等和子集](https://leetcode-cn.com/problems/partition-equal-subset-sum/)
+* 框架2
+
+	```c++
+	dict memo();
+	dp(状态1，状态2，...)
+	{
+		if (memo[状态1，状态2，...] 存在)：
+			return memo[状态1，状态2，...]
+		for 选择 in 选择列表：
+			res = 求最值(dp--选择1，dp--选择2...)
+		memo(状态1，状态2，...) = res;
+		return res;
+	}
+	```
+
+	
+
+## [ 分割等和子集](https://leetcode-cn.com/problems/partition-equal-subset-sum/)
 
 给定一个**只包含正整数**的**非空**数组。是否可以将这个数组分割成两个子集，使得两个子集的元素和相等。
 
@@ -432,6 +451,270 @@ void shuffle(int[] arr) {
     }
 }
 ```
+
+# 二分法
+
+## 基本框架
+
+```c
+int binary_search(int[] nums, int target) {
+    int left = 0, right = nums.length - 1; 
+    while(left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] < target) {
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            right = mid - 1; 
+        } else if(nums[mid] == target) {
+            // 直接返回
+            return mid;
+        }
+    }
+    // 直接返回
+    return -1;
+}
+​
+int left_bound(int[] nums, int target) {
+    int left = 0, right = nums.length - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] < target) {
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            right = mid - 1;
+        } else if (nums[mid] == target) {
+            // 别返回，锁定左侧边界
+            right = mid - 1;
+        }
+    }
+    // 最后要检查 left 越界的情况
+    if (left >= nums.length || nums[left] != target)
+        return -1;
+    return left;
+}
+​
+​
+int right_bound(int[] nums, int target) {
+    int left = 0, right = nums.length - 1;
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        if (nums[mid] < target) {
+            left = mid + 1;
+        } else if (nums[mid] > target) {
+            right = mid - 1;
+        } else if (nums[mid] == target) {
+            // 别返回，锁定右侧边界
+            left = mid + 1;
+        }
+    }
+    // 最后要检查 right 越界的情况
+    if (right < 0 || nums[right] != target)
+        return -1;
+    return right;
+}
+```
+
+# 双指针
+
+## 是否有环形
+
+```c
+boolean hasCycle(ListNode head) {
+    ListNode fast, slow;
+    fast = slow = head;
+    while (fast != null && fast.next != null) {
+        fast = fast.next.next;
+        slow = slow.next;
+​
+        if (fast == slow) return true;
+    }
+    return false;
+}
+```
+
+## 已知链表中含有环，返回这个环的起始位置
+
+```c
+ListNode detectCycle(ListNode head) {
+    ListNode fast, slow;
+    fast = slow = head;
+    while (fast != null && fast.next != null) {
+        fast = fast.next.next;
+        slow = slow.next;
+        if (fast == slow) break;
+    }
+    // 上面的代码类似 hasCycle 函数
+    slow = head;
+    while (slow != fast) {
+        fast = fast.next;
+        slow = slow.next;
+    }
+    return slow;
+}
+```
+
+## 寻找中点
+
+```c
+while (fast != null && fast.next != null) {
+    fast = fast.next.next;
+    slow = slow.next;
+}
+// slow 就在中间位置
+return slow;
+```
+
+## 寻找链表的倒数第 k 个元素
+
+```
+ListNode slow, fast;
+slow = fast = head;
+while (k-- > 0) 
+    fast = fast.next;
+​
+while (fast != null) {
+    slow = slow.next;
+    fast = fast.next;
+}
+return slow;
+```
+
+# 滑动窗口
+
+## 基本框架
+
+```
+int left = 0, right = 0;
+​
+while (right < s.size()) {`
+    // 增大窗口
+    window.add(s[right]);
+    right++;
+​
+    while (window needs shrink) {
+        // 缩小窗口
+        window.remove(s[left]);
+        left++;
+    }
+}
+```
+
+# 回溯算法
+
+## 基本框架
+
+```c
+result = []
+def backtrack(路径, 选择列表):
+    if 满足结束条件:
+        result.add(路径)
+        return
+​
+    for 选择 in 选择列表:
+        做选择
+        backtrack(路径, 选择列表)
+        撤销选择
+```
+
+# BFS
+
+## 基本框架
+
+```c
+// 计算从起点 start 到终点 target 的最近距离
+int BFS(Node start, Node target) {
+    Queue<Node> q; // 核心数据结构
+    Set<Node> visited; // 避免走回头路
+​
+    q.offer(start); // 将起点加入队列
+    visited.add(start);
+    int step = 0; // 记录扩散的步数
+​
+    while (q not empty) {
+        int sz = q.size();
+        /* 将当前队列中的所有节点向四周扩散 */
+        for (int i = 0; i < sz; i++) {
+            Node cur = q.poll();
+            /* 划重点：这里判断是否到达终点 */
+            if (cur is target)
+                return step;
+            /* 将 cur 的相邻节点加入队列 */
+            for (Node x : cur.adj())
+                if (x not in visited) {
+                    q.offer(x);
+                    visited.add(x);
+                }
+        }
+        /* 划重点：更新步数在这里 */
+        step++;
+    }
+}
+```
+
+# Union-find
+
+## 基本框架
+
+```c
+class UF {
+    // 连通分量个数
+    private int count;
+    // 存储一棵树
+    private int[] parent;
+    // 记录树的“重量”
+    private int[] size;
+​
+    public UF(int n) {
+        this.count = n;
+        parent = new int[n];
+        size = new int[n];
+        for (int i = 0; i < n; i++) {
+            parent[i] = i;
+            size[i] = 1;
+        }
+    }
+​
+    public void union(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+        if (rootP == rootQ)
+            return;
+​
+        // 小树接到大树下面，较平衡
+        if (size[rootP] > size[rootQ]) {
+            parent[rootQ] = rootP;
+            size[rootP] += size[rootQ];
+        } else {
+            parent[rootP] = rootQ;
+            size[rootQ] += size[rootP];
+        }
+        count--;
+    }
+​
+    public boolean connected(int p, int q) {
+        int rootP = find(p);
+        int rootQ = find(q);
+        return rootP == rootQ;
+    }
+​
+    private int find(int x) {
+        while (parent[x] != x) {
+            // 进行路径压缩
+            parent[x] = parent[parent[x]];
+            x = parent[x];
+        }
+        return x;
+    }
+​
+    public int count() {
+        return count;
+    }
+}
+```
+
+# 单调栈
+
+## 基本框架
 
 
 
