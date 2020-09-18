@@ -716,7 +716,326 @@ class UF {
 
 ## 基本框架
 
+```c
+class Solution {
+public:
+    vector<int> nextGreaterElement(vector<int>& nums1) {
+        vector<int> myStack;
+        if (nums1.size() == 0)
+            特殊处理;
+        nums1 = vector<int>(nums1.size(), -1);
+        // 初始位置入栈
+        myStack.push_back(nums2[0]);
+        int i = 1;
+        while (i < nums1.size()) {
+            while (!myStack.empty() && nums1[i] > myStack.back()) {
+                出栈前的处理。。。
+                myStack.pop_back();
+            }
+            // 单调递减或者递增入栈
+            myStack.push_back(nums2[i]);
+            i++;
+        }
+        return nums1;
+    }
+};
+	
+```
 
+# 贪心算法
+
+## 基本框架
+
+**不知道读者有没有发现，有关动态规划的问题，大多是让你求最值的**，比如最长子序列，最小编辑距离，最长公共子串等等等。这就是规律，因为动态规划本身就是运筹学里的一种求最值的算法。
+
+那么贪心算法作为特殊的动态规划也是一样，一般也是让你求个最值。这道题表面上不是求最值，但是可以改一改：
+
+
+
+## [跳跃游戏](https://leetcode-cn.com/problems/jump-game/)
+
+给定一个非负整数数组，你最初位于数组的第一个位置。
+
+数组中的每个元素代表你在该位置可以跳跃的最大长度。
+
+判断你是否能够到达最后一个位置。
+
+**示例 1:**
+
+```
+输入: [2,3,1,1,4]
+输出: true
+解释: 我们可以先跳 1 步，从位置 0 到达 位置 1, 然后再从位置 1 跳 3 步到达最后一个位置。
+```
+
+**示例 2:**
+
+```
+输入: [3,2,1,0,4]
+输出: false
+解释: 无论怎样，你总会到达索引为 3 的位置。但该位置的最大跳跃长度是 0 ， 所以你永远不可能到达最后一个位置。
+```
+
+* 解答
+
+	```c++
+	class Solution {
+	public:
+	    bool canJump(vector<int>& nums) {
+	        int maxFast = 0; //表示当前能跳到的最大位置
+			for (int i = 0; i < nums.size() - 1; i++) {
+	            maxFast = max(maxFast, i + nums[i]);
+	            // 最远位置还比当前位置小  肯定完蛋
+	            if (maxFast <= i) {
+	                return false;
+	            }
+	        }
+	        return (maxFast >= (nums.size() - 1));
+	    }
+	};
+	```
+
+	## [跳跃游戏 II](https://leetcode-cn.com/problems/jump-game-ii/)
+
+	给定一个非负整数数组，你最初位于数组的第一个位置。
+
+	数组中的每个元素代表你在该位置可以跳跃的最大长度。
+
+	你的目标是使用最少的跳跃次数到达数组的最后一个位置。
+
+	**示例:**
+
+	```
+	输入: [2,3,1,1,4]
+	输出: 2
+	解释: 跳到最后一个位置的最小跳跃数是 2。
+	     从下标为 0 跳到下标为 1 的位置，跳 1 步，然后跳 3 步到达数组的最后一个位置。
+	```
+
+* 解答
+
+	**动态规划**
+
+	说说动态规划的思路，采用自顶向下的递归动态规划，可以这样定义一个`dp`函数：
+
+	```c++
+	// 定义：从索引 p 跳到最后一格，至少需要 dp(nums, p) 步
+	int dp(vector<int>& nums, int p);
+	```
+
+	我们想求的结果就是`dp(nums, 0)`，base case 就是当`p`超过最后一格时，不需要跳跃：
+
+	```
+	if (p >= nums.size() - 1) {
+	    return 0;
+	}
+	```
+
+	通过备忘录`memo`消除重叠子问题，取其中的最小值最为最终答案：
+
+	```c
+	vector<int> memo;
+	// 主函数
+	int jump(vector<int>& nums) {
+	    int n = nums.size();
+	    // 备忘录都初始化为 n，相当于 INT_MAX
+	    // 因为从 0 调到 n - 1 最多 n - 1 步
+	    memo = vector<int>(n, n);
+	    return dp(nums, 0);
+	}
+	
+	int dp(vector<int>& nums, int p) {
+	    int n = nums.size();
+	    // base case
+	    if (p >= n - 1) {
+	        return 0;
+	    }
+	    // 子问题已经计算过
+	    if (memo[p] != n) {
+	        return memo[p];
+	    }
+	    int steps = nums[p];
+	    // 你可以选择跳 1 步，2 步...
+	    for (int i = 1; i <= steps; i++) {
+	        // 穷举每一个选择
+	        // 计算每一个子问题的结果
+	        int subProblem = dp(nums, p + i);
+	        // 取其中最小的作为最终结果
+	        memo[p] = min(memo[p], subProblem + 1);
+	    }
+	    return memo[p];
+	}
+	```
+
+	该算法的时间复杂度是 递归深度 × 每次递归需要的时间复杂度，即 O(N^2)，在 LeetCode 上是无法通过所有用例的，会超时。
+
+	**贪心算法比动态规划多了一个性质：贪心选择性质**。我知道大家都不喜欢看严谨但枯燥的数学形式定义，那么我们就来直观地看一看什么样的问题满足贪心选择性质。
+
+	刚才的动态规划思路，不是要穷举所有子问题，然后取其中最小的作为结果吗？核心的代码框架是这样：
+
+	```c
+	    for (int i = 1; i <= steps; i++) {
+	        // 穷举每一个选择
+	        // 计算每一个子问题的结果
+	        int subProblem = dp(nums, p + i);
+	        // 取其中最小的作为最终结果
+	        memo[p] = min(memo[p], subProblem + 1);
+	    }
+	```
+
+	for 循环中会陷入递归计算子问题，这是动态规划时间复杂度高的根本原因。
+
+	但是，真的需要「递归地」计算出每一个子问题的结果，然后求最值吗？**直观地想一想，似乎不需要递归，只需要判断哪一个选择最具有「潜力」即可**：
+
+	![image-20200918172911362](C:\Users\q00580359\AppData\Roaming\Typora\typora-user-images\image-20200918172911362.png)
+
+	比如上图这种情况从开始位置应该跳到多少呢？
+
+	显然应该跳 2 步调到索引 2，**因为`nums[2]`的可跳跃区域涵盖了索引区间`[3..6]`**，比其他的都大。如果想求最少的跳跃次数，那么往索引 2 跳必然是最优的选择。
+
+	你看，**这就是贪心选择性质，我们不需要「递归地」计算出所有选择的具体结果然后比较求最值，而只需要做出那个最有「潜力」，看起来最优的选择即可**。
+
+	绕过这个弯儿来，就可以写代码了：
+
+	**贪心算法**
+
+	```c
+	class Solution {
+	public:
+	int jump(vector<int>& nums) {
+	    int n = nums.size();
+	    if (n == 1) {
+	        return 0;
+	    }
+	    int end = 0, farthest = 0;
+	    int jumps = 0;
+	    for (int i = 0; i < n; i++) {
+	        farthest = max(nums[i] + i, farthest);
+	        if (farthest >= (n - 1) ) {
+	            jumps ++;
+	            return jumps;
+        }
+	        if (end == i) {
+            jumps++;
+	            end = farthest;
+        }
+	    }
+    return 0;
+	}
+};
+	```
+
+	结合刚才那个图，就知道这段短小精悍的代码在干什么了：
+
+	![image-20200918173341247](C:\Users\q00580359\AppData\Roaming\Typora\typora-user-images\image-20200918173341247.png)
+
+	`i`和`end`标记了可以选择的跳跃步数，`farthest`标记了所有可选择跳跃步数`[i..end]`中能够跳到的最远距离，`jumps`记录了跳跃次数。
+
+	本算法的时间复杂度 O(N)，空间复杂度 O(1)，可以说是非常高效，动态规划都被吊起来打了。
+
+	## [ 灌溉花园的最少水龙头数目](https://leetcode-cn.com/problems/minimum-number-of-taps-to-open-to-water-a-garden/)
+
+	在 x 轴上有一个一维的花园。花园长度为 `n`，从点 `0` 开始，到点 `n` 结束。
+
+	花园里总共有 `n + 1` 个水龙头，分别位于 `[0, 1, ..., n]` 。
+
+	给你一个整数 `n` 和一个长度为 `n + 1` 的整数数组 `ranges` ，其中 `ranges[i]` （下标从 0 开始）表示：如果打开点 `i` 处的水龙头，可以灌溉的区域为 `[i - ranges[i], i + ranges[i]]` 。
+	
+	请你返回可以灌溉整个花园的 **最少水龙头数目** 。如果花园始终存在无法灌溉到的地方，请你返回 **-1** 。
+	
+	 
+	
+	**示例 1：**
+	
+	![img](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2020/01/19/1685_example_1.png)
+	
+	```
+	输入：n = 5, ranges = [3,4,1,1,0,0]
+输出：1
+	解释：
+点 0 处的水龙头可以灌溉区间 [-3,3]
+	点 1 处的水龙头可以灌溉区间 [-3,5]
+	点 2 处的水龙头可以灌溉区间 [1,3]
+	点 3 处的水龙头可以灌溉区间 [2,4]
+	点 4 处的水龙头可以灌溉区间 [4,4]
+	点 5 处的水龙头可以灌溉区间 [5,5]
+只需要打开点 1 处的水龙头即可灌溉整个花园 [0,5] 。
+	```
+
+	**示例 2：**
+	
+	```
+	输入：n = 3, ranges = [0,0,0,0]
+输出：-1
+	解释：即使打开所有水龙头，你也无法灌溉整个花园。
+	```
+```
+	
+	**示例 3：**
+	
+```
+输入：n = 7, ranges = [1,2,1,0,2,1,0,1]
+	输出：3
+```
+	
+	**示例 4：**
+	
+```
+输入：n = 8, ranges = [4,0,0,0,0,0,0,0,4]
+	输出：2
+```
+	
+	**示例 5：**
+	
+```
+	输入：n = 8, ranges = [4,0,0,0,4,0,0,0,4]
+	输出：1
+	```
+	
+	**提示：**
+	
+	- `1 <= n <= 10^4`
+	- `ranges.length == n + 1`
+	- `0 <= ranges[i] <= 100`
+
+* **解答**
+
+	**贪心算法**
+
+	```c
+	bool Compare(pair<int, int> &a, pair<int, int> &b) {
+	    return a.first < b.first;
+	}
+	class Solution {
+	public:
+	    int minTaps(int n, vector<int>& ranges) {
+	        vector<pair<int, int>> range;
+	        for (int i = 0; i < ranges.size(); i++) {
+	            range.push_back({i - ranges[i], i + ranges[i]});
+	        }
+	        sort(range.begin(), range.end(),Compare);
+	        int right = 0;
+	        int nextMaxRight;
+	        int res = 0;
+	        int i = 0;
+	        while (right < n) {
+	            nextMaxRight = right;
+	            while (i < range.size() && range[i].first <= right) {
+	                nextMaxRight = max(nextMaxRight, range[i].second);
+	                i++;
+	            }
+	            if (nextMaxRight <= right) {
+	                return -1;
+	            }
+	            right = nextMaxRight;
+	            res++;
+	        }
+	        return res;
+	    }
+	};
+	```
+
+	
 
 # Vscode使用
 
