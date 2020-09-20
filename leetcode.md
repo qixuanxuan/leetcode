@@ -720,21 +720,15 @@ class UF {
 class Solution {
 public:
     vector<int> nextGreaterElement(vector<int>& nums1) {
-        vector<int> myStack;
         if (nums1.size() == 0)
             特殊处理;
-        nums1 = vector<int>(nums1.size(), -1);
-        // 初始位置入栈
-        myStack.push_back(nums2[0]);
-        int i = 1;
-        while (i < nums1.size()) {
+        myStack.push_back(nums1[0]);// 初始位置入栈
+        while (i++ < nums1.size()) {
             while (!myStack.empty() && nums1[i] > myStack.back()) {
                 出栈前的处理。。。
                 myStack.pop_back();
             }
-            // 单调递减或者递增入栈
-            myStack.push_back(nums2[i]);
-            i++;
+            myStack.push_back(nums2[i]);// 单调递减或者递增入栈
         }
         return nums1;
     }
@@ -1035,7 +1029,102 @@ public:
 	};
 	```
 
-	
+# 字符串
+
+## [反转字符串](https://leetcode-cn.com/problems/reverse-string/)--双指针
+
+编写一个函数，其作用是将输入的字符串反转过来。输入字符串以字符数组 `char[]` 的形式给出。
+
+不要给另外的数组分配额外的空间，你必须**[原地](https://baike.baidu.com/item/原地算法)修改输入数组**、使用 O(1) 的额外空间解决这一问题。
+
+你可以假设数组中的所有字符都是 [ASCII](https://baike.baidu.com/item/ASCII) 码表中的可打印字符。
+
+**示例 1：**
+
+```
+输入：["h","e","l","l","o"]
+输出：["o","l","l","e","h"]
+```
+
+**示例 2：**
+
+```
+输入：["H","a","n","n","a","h"]
+输出：["h","a","n","n","a","H"]
+```
+
+* **解答**----双指针
+
+  ```c
+  class Solution {
+  public:
+      void Swap(int &a, int &b)
+      {
+          int tmp;
+          tmp = a;
+          a = b;
+          b = tmp;
+      }
+      void reverseString(vector<char>& s) 
+      {
+          int left = 0;
+          int right = s.size() - 1;
+          while (left <= right) {
+              swap(s[left], s[right]);
+              left++;
+              right--;
+          }
+      }
+  };
+  ```
+
+## 字符串的匹配
+
+实现 [strStr()](https://baike.baidu.com/item/strstr/811469) 函数。
+
+给定一个 haystack 字符串和一个 needle 字符串，在 haystack 字符串中找出 needle 字符串出现的第一个位置 (从0开始)。如果不存在，则返回 **-1**。
+
+**示例 1:**
+
+```
+输入: haystack = "hello", needle = "ll"
+输出: 2
+```
+
+**示例 2:**
+
+```
+输入: haystack = "aaaaa", needle = "bba"
+输出: -1
+```
+
+* **解答**
+
+  ```c++
+  // find 函数
+  class Solution {
+  public:
+      int strStr(string haystack, string needle) {
+          return haystack.find(needle);
+      }
+  };
+  // 正则表达
+  class Solution {
+  public:
+      int strStr(string haystack, string needle) {
+          smatch re;
+          if (haystack.size() == 0 && needle.size() == 0) return 0;
+          regex_search(haystack, re, regex(needle));
+          if (re.position() >= haystack.size()) {
+              return -1;
+          }
+          return re.position();
+      }
+  };
+  
+  ```
+
+  
 
 # Vscode使用
 
