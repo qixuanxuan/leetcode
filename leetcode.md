@@ -1,3 +1,5 @@
+
+
 # 动态规划
 
 ## 基本框架
@@ -21,6 +23,7 @@ for 状态1 in 状态1的所有取值：
 
 * 框架2
 
+
 	```c++
 	dict memo();
 	dp(状态1，状态2，...)
@@ -34,7 +37,8 @@ for 状态1 in 状态1的所有取值：
 	}
 	```
 
-	
+
+​	
 
 ## [ 分割等和子集](https://leetcode-cn.com/problems/partition-equal-subset-sum/)
 
@@ -599,6 +603,60 @@ while (right < s.size()) {`
 }
 ```
 
+## [最小覆盖子串](https://leetcode-cn.com/problems/minimum-window-substring/)
+
+给你一个字符串 S、一个字符串 T 。请你设计一种算法，可以在 O(n) 的时间复杂度内，从字符串 S 里面找出：包含 T 所有字符的最小子串。 
+
+**示例：**
+
+```
+输入：S = "ADOBECODEBANC", T = "ABC"
+输出："BANC"
+```
+
+* **解答**
+
+```c++
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        int M = s.size();
+        int N = t.size();
+        unordered_map<char, int> scount;
+        unordered_map<char, int> tcount;
+        // left and right means [left, right] of s
+        // count means the same chars of s[left, right] with t
+        int left = 0, right = 0, count = 0;
+        int minLen = INT_MAX;
+        string res;
+        for (char c : t)
+            ++tcount[c];
+        while (right < M) {
+            char c = s[right];
+            scount[c] += 1;
+            if (tcount.count(c) && scount[c] <= tcount[c]) {
+                count += 1;
+            }
+            while (left <= right && count == N) {
+                if (minLen > right - left + 1) {
+                    minLen = right - left + 1;
+                    res = s.substr(left, minLen);
+                }
+                char l = s[left];
+                scount[l] -= 1;
+                if (tcount.count(l) && scount[l] < tcount[l])
+                    count -= 1;
+                ++left;
+            }
+            ++right;
+        }
+        return res;
+    }
+};
+```
+
+
+
 # 回溯算法
 
 ## 基本框架
@@ -1124,7 +1182,93 @@ public:
   
   ```
 
+## 回文字符串验证--双指针
+
+  ```c++
+  class Solution {
+  public:
+      bool isPalindrome(string s) {
+          string sgood;
+          for (char ch: s) {
+              // man isalnum可以查看函数的用法
+              if (isalnum(ch)) {
+                  sgood += tolower(ch);
+              }
+          }
+          int n = sgood.size();
+          int left = 0, right = n - 1;
+          while (left < right) {
+             if (sgood[left] != sgood[right]) {
+                  return false;
+              }
+              ++left;
+              --right;
+          }
+          return true;
+      }
+  };
+  ```
+
+## 字符串匹配--[KMP](https://www.bilibili.com/video/BV1S64y1u74P?from=search&seid=7029455513078182732)
+
+  ```c++
+  // 暴力解法
+  int IndexKmpMinums(string chang, string duan)
+  {
+      int c = 0;
+      int d = 0;
+      while (c < chang.size() && d < duna.size()) {
+          if (chang[c] == duan[d]) { //匹配
+              c++;
+              d++;
+          } else { // 不匹配
+              c = c - d + 1;
+              d = 0;
+          }
+      }
+      return d == duan.size() ? c - d : -1;
+  }
   
+  //KMP
+  int IndexKmpMinums(string chang, string duan)
+  {
+      int c = 0;
+      int d = 0;
+      vector<int> next = GetNext(duan);
+      while (c < chang.size() && d < duna.size()) {
+          if (d == -1 || chang[c] == duan[d]) { //匹配
+              c++;
+              d++;
+          } else { // 不匹配
+              d = next[d];
+          }
+      }
+      return d == duan.size() ? c - d : -1;
+  }
+  
+  vector<int> GetNext(string duan)
+  {
+      int c = 0;
+      int d = -1;
+      vector<int> next(duan.size(), -1);
+      while (c < duna.size() - 1) {
+          if (d == -1 || duan[c] == duan[d]) { //匹配
+              c++;
+              d++;
+              next[c] = d;
+          } else { // 不匹配
+              d = next[d];
+          }
+      }
+      return next;
+  }
+  ```
+
+  
+
+
+
+
 
 # Vscode使用
 
