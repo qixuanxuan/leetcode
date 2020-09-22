@@ -9,60 +9,27 @@ using namespace std;
 #include <vector>
 class Solution {
 public:
-    bool IsDigital(char x) {
-        if (x >= '0' && x <= '9') {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    int calculate(string s) {
-        s.erase(s.find_last_not_of(' ') + 1);
-        s.erase(0, s.find_first_not_of(' '));
-        char sign = '+';
-        int num = 0;
-        vector<int> stackNum;
+    string shortestPalindrome(string s) {
+        int left = 0;
+        int right =0;
+        int mux = 1;
+        int base = 131;
+        int mod = 1000000007;
+        int best;
+        int n = s.size();
         for (int i = 0; i < s.size(); i++) {
-
-            if (IsDigital(s[i])) {
-                num = num * 10 + (s[i] - '0');
+            left = ((long long) left * base + s[i]) % mod;
+            right = (right + (long long)mux * s[i]) % mod;
+            if (left == right) {
+                best = i;
             }
-
-
-             if (!IsDigital(s[i]) && s[i] != ' ' || i == s.size() - 1){
-                int tmp;
-                switch (sign)
-                {
-                    case '+':
-                        stackNum.push_back(num);
-                        break;
-                    case '-':
-                        stackNum.push_back(-num);
-                        break;
-                    case '*':
-                        tmp = stackNum.back();
-                        stackNum.pop_back();
-                        stackNum.push_back(tmp * num);
-                        break;
-                    case '/':
-                        tmp = stackNum.back();
-                        stackNum.pop_back();
-                        stackNum.push_back(tmp / num);
-                        break;
-                }
-                sign = s[i];
-                num = 0;
-            }
+            mux = ((long long) base * mux) % mod;
         }
-        int res = 0;
-        while (!stackNum.empty()) {
-            res += stackNum.back();
-            stackNum.pop_back();
-        }
-        return res;
+        string add = (best == s.size() - 1) ? "" : s.substr(best + 1, n);
+        reverse(add.begin(), add.end());
+        return add + s;
     }
 };
-
 
 int main ()
 {

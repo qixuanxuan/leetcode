@@ -1,5 +1,7 @@
 
 
+
+
 # 动态规划
 
 ## 基本框架
@@ -1318,6 +1320,142 @@ class Solution {
 ```
 
 https://www.cnblogs.com/liuzhen1995/p/12044241.html
+
+## [最短回文串](https://leetcode-cn.com/problems/shortest-palindrome/)
+
+给定一个字符串 ***s***，你可以通过在字符串前面添加字符将其转换为回文串。找到并返回可以用这种方式转换的最短回文串。
+
+**示例 1:**
+
+```
+输入: "aacecaaa"
+输出: "aaacecaaa"
+```
+
+**示例 2:**
+
+```
+输入: "abcd"
+输出: "dcbabcd"
+```
+
+
+
+```c
+class Solution {
+public:
+    string shortestPalindrome(string s) {
+        int left = 0;
+        int right =0;
+        int mux = 1;
+        int base = 131;
+        int mod = 1000000007;
+        int best = -1;
+        int n = s.size();
+        for (int i = 0; i < s.size(); i++) {
+            left = ((long long) left * base + s[i]) % mod;
+            right = (right + (long long)mux * s[i]) % mod;
+            if (left == right) {
+                best = i;
+            }
+            mux = ((long long) base * mux) % mod;
+        }
+        string add = (best == s.size() - 1 ? "" : s.substr(best + 1, n));
+        reverse(add.begin(), add.end());
+        return add + s;
+    }
+};
+```
+
+## [522. 最长特殊序列 II](https://leetcode-cn.com/problems/longest-uncommon-subsequence-ii/)
+
+给定字符串列表，你需要从它们中找出最长的特殊序列。最长特殊序列定义如下：该序列为某字符串独有的最长子序列（即不能是其他字符串的子序列）。
+
+**子序列**可以通过删去字符串中的某些字符实现，但不能改变剩余字符的相对顺序。空序列为所有字符串的子序列，任何字符串为其自身的子序列。
+
+输入将是一个字符串列表，输出是最长特殊序列的长度。如果最长特殊序列不存在，返回 -1 。
+
+ 
+
+**示例：**
+
+```
+输入: "aba", "cdc", "eae"
+输出: 3
+```
+
+ 
+
+**提示：**
+
+1. 所有给定的字符串长度不会超过 10 。
+2. 给定字符串列表的长度将在 [2, 50 ] 之间。
+
+**解题思路**
+
+1.按照长度大小排序
+2.对字符串进行出现个数统计
+3.如果该字符串只出现过1次，且不是前面字符串的子串，则它是最大的。
+
+字符串子串判定函数，需要使用双指针；
+
+```
+class Solution {
+public:
+    static bool mycmp(string &a,string &b){
+
+        if(a.size() == b.size()){
+            return a < b;
+        }
+
+        return a.size() > b.size();
+    }
+
+    bool isSubSeq(string &a,string &b){
+        int i = 0, j = 0;
+        for (i = 0, j = 0; i < a.size() && j < b.size();i++){
+            if(a[i] == b[j] ){
+                j++;
+            }
+        }
+
+        if(j == b.size()){
+            return true;
+        }
+
+        return false;
+    }
+
+    int findLUSlength(vector<string>& strs) {
+
+        unordered_map<string, int> countmap;
+        sort(strs.begin(), strs.end(), mycmp);
+
+        for(auto &s:strs){
+            countmap[s]++;
+        }
+
+        for (int i = 0; i < strs.size();i++){
+            if(countmap[strs[i]] == 1){
+                int flag = false;
+                int j = 0;
+                for (j = 0; j < i;j++){
+                    if(isSubSeq(strs[j],strs[i])){
+                        flag = true;
+                        break;
+                    }
+                }
+
+                if(flag == false){
+                    return strs[j].size();
+                }
+            }
+        }
+
+        return -1;
+    }
+};
+```
 
 
 
