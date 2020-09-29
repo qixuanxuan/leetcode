@@ -780,8 +780,6 @@ class UF {
 class Solution {
 public:
     vector<int> nextGreaterElement(vector<int>& nums1) {
-        if (nums1.size() == 0)
-            特殊处理;
         myStack.push_back(nums1[0]);// 初始位置入栈
         while (i++ < nums1.size()) {
             while (!myStack.empty() && nums1[i] > myStack.back()) {
@@ -1822,6 +1820,7 @@ public:
 };
 ```
 
+<<<<<<< HEAD
 ## [括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
 
 数字 *n* 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 **有效的** 括号组合。
@@ -1863,6 +1862,59 @@ public:
         string tmp;
         dfs(res, tmp, 0, 0, n);
         return res;
+=======
+# 区间合并
+
+```
+bool compare(vector<int>& a, vector<int>& b)
+{
+    if (a[0] < b[0]) {
+        return true;
+    }
+    else if (a[0] == b[0]) {
+        if (a[1] > b[1]) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
+class Solution {
+public:
+    int videoStitching(vector<vector<int>>& clips, int T)
+    {
+        sort(clips.begin(), clips.end(), compare);
+        if (clips.size() == 0) return -1;
+        if (clips.size() == 1) {
+            if (clips[0][0] <= 0 && clips[0][1] >= T) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+        if (clips[0][0] <=0 && clips[0][1] >= T) return 1;
+        if (clips[0][0] > 0) return -1;
+        int end = clips[0][1];
+        int farthest = clips[0][1];
+        int count = 1;
+        for (int i = 1; i < clips.size(); i++) {
+            if (clips[i][0] > end) {
+                if (clips[i][0] > farthest) return -1;
+                count++;
+                end = farthest;
+            }
+
+            farthest = max(clips[i][1], farthest);
+            if (farthest >= T) {
+                count++;
+                return count;
+            }
+
+        }
+        return -1;
+>>>>>>> 3148c9c4411681c3cb4cd32703841fb8d30fb82c
     }
 };
 ```
