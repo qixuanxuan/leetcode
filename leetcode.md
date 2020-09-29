@@ -1822,6 +1822,51 @@ public:
 };
 ```
 
+## [括号生成](https://leetcode-cn.com/problems/generate-parentheses/)
+
+数字 *n* 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 **有效的** 括号组合。
+
+**示例：**
+
+```
+输入：n = 3
+输出：[
+       "((()))",
+       "(()())",
+       "(())()",
+       "()(())",
+       "()()()"
+     ]
+```
+
+```c++
+class Solution {
+public:
+    void  dfs(vector<string> &res, string &tmp, int left, int right, int n)
+    {
+        if (tmp.size() == 2 * n) {
+            res.push_back(tmp);
+        }
+        if (left < n) {
+            tmp.push_back('(');
+            dfs(res, tmp, left + 1, right, n);
+            tmp.pop_back();
+        }
+        if (right < left) {
+            tmp.push_back(')');
+            dfs(res, tmp, left, right + 1, n);
+            tmp.pop_back();
+        }
+    }
+    vector<string> generateParenthesis(int n) {
+        vector<string> res;
+        string tmp;
+        dfs(res, tmp, 0, 0, n);
+        return res;
+    }
+};
+```
+
 
 
 # Vscode使用
